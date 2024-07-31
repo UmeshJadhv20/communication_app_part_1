@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="./JS/common.js"></script>
+    <script>
+        allowLoggedInUserAccess()
+    </script>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="./chatlist.html">Group Chat</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./userlist.html">Manage Users</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./documentlist.html">Manage Documents</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="logout-btn">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="mt-5">
+            <div class="card">
+                <div class="card-header">
+                    Edit User Information
+                </div>
+                <div class="card-body">
+                    <form action="./userlist.html" class="needs-validation">
+                        <div class="mb-3">
+                            <label for="fullname" class="form-label">Fullname</label>
+                            <input type="text" class="form-control" name="fullname" id="fullname">
+                            <div class="invalid-feedback">
+                                Please enter your fullname.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" id="email">
+                            <div class="invalid-feedback">
+                                Please enter a valid email address.
+                            </div>
+                        </div>
+                        <input type="hidden" id="index" name="index">
+                        <button type="submit" class="btn btn-primary" id="saveChanges">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+
+        let urlParams = new URLSearchParams(window.location.search);
+
+        let index = urlParams.get('id');
+        let users = JSON.parse(localStorage.getItem("users"));
+
+        if (index) {
+            document.getElementById("index").value = index;
+            if (users) {
+                document.getElementById("fullname").value = users[index].fullname;
+                document.getElementById("email").value = users[index].email;
+
+                if (localStorage.getItem("loggedUser") !== null && JSON.parse(localStorage.getItem("loggedUser")).id === users[index].id) {
+                    document.getElementById("email").readOnly = true;
+                }
+            }
+        }
+
+
+
+        document.getElementById("saveChanges").addEventListener("click", (event) => {
+            event.preventDefault();
+            let index = document.getElementById("index").value;
+            let fullname = document.getElementById("fullname").value;
+            let email = document.getElementById("email").value;
+
+            if (fullname == "") {
+                document.getElementById("fullname").classList.add("is-invalid");
+                document.getElementById("fullname").nextElementSibling.classList.add("invalid-feedback");
+                return false
+            } else {
+                document.getElementById("fullname").classList.remove("is-invalid");
+            }
+
+            if (email == "") {
+                document.getElementById("email").classList.add("is-invalid");
+                document.getElementById("email").nextElementSibling.classList.add("invalid-feedback");
+                document.getElementById("email").nextElementSibling.innerHTML = "Please enter a valid email address.";
+                return false
+            } else {
+                document.getElementById("email").classList.remove("is-invalid");
+                if (!validateEmail(email)) {
+                    document.getElementById("email").classList.add("is-invalid");
+                    return false
+                } else {
+                    document.getElementById("email").classList.remove("is-invalid");
+                }
+
+                for (let i = 0; i < users.length; i++) {
+                    if (users[i].email == email && i != index) {
+                        document.getElementById("email").classList.add("is-invalid");
+                        document.getElementById("email").nextElementSibling.innerHTML = "Email already exist";
+                        return false
+                    } else {
+                        document.getElementById("email").nextElementSibling.innerHTML = "Please enter a valid email address.";
+                        document.getElementById("email").classList.remove("is-invalid");
+                    }
+                }
+
+            }
+
+            users[index].fullname = fullname;
+            users[index].email = email;
+
+            localStorage.setItem("users", JSON.stringify(users));
+            window.location.href = "userlist.html";
+            return true
+        })
+
+
+    </script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,11 @@
+#chat-list{
+    max-height: 300px;
+    overflow-y: scroll;
+}
+
+.bg-green-light {
+    background-color: #e0ffff;
+}
+.bg-green-dark {
+    background-color: #f0f8ff;
+}

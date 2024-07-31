@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User List</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="./CSS/style.css">
+    <script src="./JS/common.js"></script>
+    <script>
+        allowLoggedInUserAccess()
+    </script>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="./chatlist.html">Group Chat</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./userlist.html">Manage Users</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./documentlist.html">Manage Documents</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="logout-btn">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Group Chat</h5>
+                        <ul id="chat-list" class="list-group list-group-flush"></ul>
+                        <div class="input-group mt-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"> <b><span id="logged_in_user"></span></b> </span>
+                            </div>
+                            <input type="text" class="form-control" id="chat-input" placeholder="Type your message..."
+                                aria-label="Username">
+                            <span id="logged_in_user"></span>
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" id="send-btn">Send</button>
+                                <button class="btn btn-secondary" id="refresh-btn">Refresh</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const chatList = document.getElementById('chat-list');
+        const chatInput = document.getElementById('chat-input');
+
+        const dateObj = new Date();
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        const year = dateObj.getFullYear();
+        const dateTime = `${day}-${month}-${year} ` + new Date().toLocaleTimeString();
+
+        const chatData = JSON.parse(localStorage.getItem('chatData')) || [];
+        const loggedInUser = JSON.parse(localStorage.getItem('loggedUser'));
+        const userName = loggedInUser ? loggedInUser.name : '';
+        const userId = loggedInUser ? loggedInUser.id : '';
+        document.getElementById('logged_in_user').innerHTML = userName;
+
+        const fetchChatData = () => {
+
+            chatList.innerHTML = '';
+            chatData.forEach((data) => {
+                const li = document.createElement('li');
+
+                if (data.userId === userId) {
+                    li.className = 'list-group-item  text-left bg-green-light'; 
+                    li.innerHTML = `<span > [${data.dateTime}] ${data.user} : </span> <span> ${data.message}</span>`;
+                } else {
+                    li.className = 'list-group-item  text-right bg-green-dark';                   
+                    li.innerHTML = `<span> [${data.dateTime}] ${data.user} : </span> <span > ${data.message}</span>`;
+                }
+
+                chatList.appendChild(li);
+            });
+
+        }
+        fetchChatData();
+
+        const sendBtn = document.getElementById('send-btn');
+
+        sendBtn.addEventListener('click', () => {
+            if (chatInput.value.trim() === '') {
+                alert('Please enter a message');
+                return;
+            }
+
+            const message = chatInput.value;
+            if (message.trim() !== '') {
+
+                chatData.push({ user: userName, userId: userId, message: message, dateTime: dateTime });
+                localStorage.setItem('chatData', JSON.stringify(chatData));
+                chatInput.value = '';
+                fetchChatData()
+            }
+        });
+
+        const refreshBtn = document.getElementById('refresh-btn');
+
+        refreshBtn.addEventListener('click', () => {
+            fetchChatData();
+        });
+
+
+    </script>
+
+</body>
+
+</html>
